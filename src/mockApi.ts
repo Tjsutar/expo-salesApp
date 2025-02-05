@@ -59,12 +59,14 @@ export const getSalesData = async () => {
   ];
 };
 
+// Updated getLeadsData function with new structure
 export const getLeadsData = async () => {
   return [
-    { id: '1', name: 'Acme Corp', status: 'Hot', contact: 'bob@acme.com' },
-    { id: '2', name: 'Globex', status: 'Warm', contact: 'alice@globex.com' },
+    { id: '1', name: 'Acme Corp', status: 'Hot', contactInfo: 'bob@acme.com', dateCreated: '2023-07-15' },
+    { id: '2', name: 'Globex', status: 'Warm', contactInfo: 'alice@globex.com', dateCreated: '2023-07-14' },
   ];
 };
+
 
 export const addSale = async (newSale: { id: string, name: string, amount: number, date: string, customer: string }) => {
   const sales = await getSalesData();
@@ -72,25 +74,12 @@ export const addSale = async (newSale: { id: string, name: string, amount: numbe
   await AsyncStorage.setItem('sales', JSON.stringify(sales));  // Store the updated sales data
 };
 
-// Dynamically push new lead data to the leads array
-export const addLead = async (newLead: { id: string, name: string, status: string, contact: string }) => {
+
+// Add Lead Function (similar to addSale)
+// Updated addLead function to accept 'contactInfo' and 'dateCreated'
+export const addLead = async (newLead: { id: string, name: string, status: string, contactInfo: string, dateCreated: string }) => {
   const leads = await getLeadsData();
-  leads.push(newLead);  // Add the new lead entry to the leads array
+  leads.push(newLead);  // Add the new lead entry
   await AsyncStorage.setItem('leads', JSON.stringify(leads));  // Store the updated leads data
 };
 
-
-// const SalesData = async () => {
-//   const SalesData = {
-//     id: '1',
-//     name: 'John Doe',
-//     email: 'john.doe@example.com',
-//   };
-
-//   try {
-//     await AsyncStorage.setItem('user', JSON.stringify(user));  // Convert the object to a string before saving
-//     console.log('Data saved!');
-//   } catch (e) {
-//     console.error('Failed to save data', e);
-//   }
-// };
