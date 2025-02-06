@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, Modal, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  Modal,
+  TextInput,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
+
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { getLeadsData, addLead } from "@/mockApi"; // Import the new addLead function
 
 const LeadsScreen = () => {
@@ -24,32 +34,35 @@ const LeadsScreen = () => {
       return;
     }
 
-    const newLead = {
-      id: String(new Date().getTime()),  // Generate a unique ID based on current timestamp
+    const newLeadEntry = {
+      id: String(new Date().getTime()), // Generate a unique ID based on current timestamp
       name: leadName,
       status: leadStatus,
       contactInfo: leadContactInfo,
       dateCreated: leadDateCreated,
     };
 
-    await addLead(newLead);  // Call the function to add the new lead
+    // Add the new lead to the leadsData array directly for immediate update
+    setLeadsData((prevLeadsData) => [...prevLeadsData, newLeadEntry]);
 
-    // Close modal and reset form fields
-    setModalVisible(false);
-    setLeadName("");
-    setLeadStatus("");
-    setLeadContactInfo("");
-    setLeadDateCreated("");
-
-    // Fetch updated leads data
-    const updatedLeads = await getLeadsData();
-    setLeadsData(updatedLeads);
+    // Call the addLead function to persist the new lead
+    try {
+      await addLead(newLeadEntry); // Call the API to persist the lead
+      setModalVisible(false);
+      setLeadName("");
+      setLeadStatus("");
+      setLeadContactInfo("");
+      setLeadDateCreated("");
+      Alert.alert("Success", "Lead added successfully");
+    } catch (error) {
+      Alert.alert("Error", "Failed to add Lead");
+      console.error(error);
+    }
   };
 
   return (
     <View style={styles.container}>
-
-       <Text style={{fontSize:25, marginBottom:10}}>Leads : </Text> 
+      <Text style={{ fontSize: 25, marginBottom: 10 }}>Leads :</Text>
       {/* Leads List */}
       {leadsData.map((lead) => (
         <View key={lead.id} style={styles.leadItem}>
@@ -61,43 +74,61 @@ const LeadsScreen = () => {
       ))}
 
       {/* Add Lead Button */}
-      <TouchableOpacity style={styles.addLeadButton} onPress={() => setModalVisible(true)}>
-        <Text style={styles.addLeadButtonText}>Add Lead</Text>
+      <TouchableOpacity
+        style={styles.addLeadButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <MaterialCommunityIcons name="plus" size={24} color="#fff" />
+        <Text style={styles.addLeadButtonText}>Add Leads</Text>
       </TouchableOpacity>
 
       {/* Modal to Add Lead */}
-      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Add New Lead</Text>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add New Lead</Text>
 
-          <TextInput
-            placeholder="Lead Name"
-            value={leadName}
-            onChangeText={setLeadName}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Lead Status"
-            value={leadStatus}
-            onChangeText={setLeadStatus}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Contact Info"
-            value={leadContactInfo}
-            onChangeText={setLeadContactInfo}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="Date Created"
-            value={leadDateCreated}
-            onChangeText={setLeadDateCreated}
-            style={styles.input}
-          />
+            <TextInput
+              placeholder="Lead Name"
+              value={leadName}
+              onChangeText={setLeadName} // Update leadName directly
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Lead Status"
+              value={leadStatus}
+              onChangeText={setLeadStatus}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Contact Info"
+              value={leadContactInfo}
+              onChangeText={setLeadContactInfo}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Date Created"
+              value={leadDateCreated}
+              onChangeText={setLeadDateCreated}
+              style={styles.input}
+            />
 
-          <View style={styles.modalButtons}>
-            <Button title="Cancel" onPress={() => setModalVisible(false)} />
-            <Button title="Add Lead" onPress={handleAddLead} />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancle}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.addLeadButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.addLead} onPress={handleAddLead}>
+                <Text style={styles.addLeadButtonText}>Add Leads</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -111,6 +142,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#f9f9f9",
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   leadItem: {
     backgroundColor: "#fff",
@@ -128,25 +170,31 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
   },
-  addLeadButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  addLeadButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  modalContainer: {
+  modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
-    backgroundColor: "#fff",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  addLeadButton: {
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 15,
+    elevation: 5,
+  },
+  addLeadButtonText: {
+    color: "#fff",
+    paddingHorizontal: 10,
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "500",
   },
   modalTitle: {
     fontSize: 22,
@@ -165,6 +213,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
+    marginTop: 10,
+  },
+  cancle: {
+    color: "#fff",
+    backgroundColor: "gray",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  addLead: {
+    color: "#28a745",
+    backgroundColor: "green",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
 });
 

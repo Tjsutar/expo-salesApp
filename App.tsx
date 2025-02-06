@@ -1,15 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { Alert, Text, View, Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import SignInScreen from './src/screens/SignInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import LoggedInScreen from './src/screens/LoggedInScreen';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getSalesData, getLeadsData, setLoggedInUser } from './src/mockApi';
+import { setLoggedInUser } from './src/mockApi';
 
 const Stack = createStackNavigator();
 // Main App Component

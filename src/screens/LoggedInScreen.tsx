@@ -3,8 +3,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import SalesScreen from "@/components/SalesScreen";
 import LeadsScreen from "@/components/LeadsScreen";
-import ProfileScreen from "@/components/ProfileScreen"; // Fix the name of ProfileScreen
-import { StyleSheet, View, Text, Image } from "react-native";
+import ProfileScreen from "@/components/ProfileScreen";
+import { StyleSheet, View, Text } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -13,7 +13,7 @@ const BottomTabs = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#4F46E5', // Active tab color
+        tabBarActiveTintColor: 'blue', // Active tab color
         tabBarInactiveTintColor: '#6B7280', // Inactive tab color
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
@@ -21,17 +21,27 @@ const BottomTabs = () => {
           height: 70, // Adjust height for better spacing
           paddingBottom: 8,
           paddingTop: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.08,
-          shadowRadius: 12,
-          elevation: 4,
+          elevation: 5,
           borderRadius: 20, // Rounded corners
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 5,
         },
         tabBarLabelStyle: {
           fontSize: 14,
           fontWeight: '500',
-          marginTop: 4,
+          marginTop: 1,
+        },
+        tabBarIconStyle: {
+          // Add some scaling effect to the icon
+          transform: [{ scale: 1.1 }],
+        },
+        tabBarHideOnKeyboard: true, // Hide the tab bar when the keyboard is open
+        tabBarItemStyle: {
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
         },
       }}
     >
@@ -40,7 +50,7 @@ const BottomTabs = () => {
         name="Sales"
         component={SalesScreen}
         options={{
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeTab : null}>
               <MaterialCommunityIcons
                 name={focused ? 'chart-box' : 'chart-box-outline'}
@@ -52,36 +62,12 @@ const BottomTabs = () => {
         }}
       />
       
-      {/* Centered Logo Tab */}
-      {/* <Tab.Screen
-        name="Logo"
-        component={ProfileScreen} // Create a temporary screen for the logo
-        options={{
-          tabBarIcon: ({ focused,color }) => (
-            <View style={focused ? styles.activeTab : null}>
-              <MaterialCommunityIcons
-                name={focused ? 'account-group' : 'account-group-outline'}
-                size={24}
-                color={color}
-              />
-            </View>
-          ),
-          tabBarLabel: () => null, // Hide the label for the logo
-        }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            // Handle logo press (optional)
-          },
-        })}
-      /> */}
-      
       {/* Leads Tab */}
       <Tab.Screen
         name="Leads"
         component={LeadsScreen}
         options={{
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ color, focused }) => (
             <View style={focused ? styles.activeTab : null}>
               <MaterialCommunityIcons
                 name={focused ? 'account-group' : 'account-group-outline'}
@@ -98,7 +84,7 @@ const BottomTabs = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ color,focused }) => (
             <View style={focused ? styles.activeTab : null}>
               <MaterialCommunityIcons
                 name={focused ? 'account-circle' : 'account-circle-outline'}
@@ -115,22 +101,15 @@ const BottomTabs = () => {
 
 const styles = StyleSheet.create({
   activeTab: {
-    backgroundColor: '#EEF2FF',
-    padding: 8,
-    borderRadius: 16,
+    borderRadius: 18,
+    transform: [{ scale: 1.2 }], // Slight scaling effect for the active tab
   },
   logoContainer: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#4F46E5',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 4,
   },
   logo: {
     width: 32,

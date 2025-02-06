@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Alert, Button } from 'react-native';
-import { getSalesData, addSale } from '@/mockApi';  // Import the addSale function
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { getSalesData, addSale } from '@/mockApi'; // Import the addSale function
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Modal } from 'react-native';
+
 
 const SalesScreen = () => {
   const [salesData, setSalesData] = useState<any[]>([]);
@@ -13,7 +15,9 @@ const SalesScreen = () => {
     date: '',
     customer: '',
   });
+  const [expandedSaleId, setExpandedSaleId] = useState<string | null>(null);
 
+  // Fetch sales data on mount
   useEffect(() => {
     const fetchSalesData = async () => {
       const sales = await getSalesData();
@@ -29,11 +33,31 @@ const SalesScreen = () => {
         <Text style={styles.amount}>₹{item.amount.toFixed(2)}</Text>
         <Text style={styles.date}>{item.date}</Text>
       </View>
-      <TouchableOpacity style={styles.viewDetailsButton}>
+      <TouchableOpacity
+        style={styles.viewDetailsButton}
+        onPress={() => handleToggleDetails(item.id)} // Toggle accordion on click
+      >
         <Text style={styles.viewDetailsText}>View Details</Text>
       </TouchableOpacity>
+
+      {expandedSaleId === item.id && (
+        <View style={styles.accordionContent}>
+          <Text>Name: {item.name}</Text>
+          <Text>Amount: ₹{item.amount.toFixed(2)}</Text>
+          <Text>Date: {item.date}</Text>
+          <Text>Customer: {item.customer}</Text>
+        </View>
+      )}
     </View>
   );
+
+  const handleToggleDetails = (id: string) => {
+    if (expandedSaleId === id) {
+      setExpandedSaleId(null); // Collapse if the same item is clicked
+    } else {
+      setExpandedSaleId(id); // Expand the clicked item
+    }
+  };
 
   const handleAddProduct = () => {
     const { name, amount, date, customer } = newSale;
@@ -50,21 +74,25 @@ const SalesScreen = () => {
       customer,
     };
 
+    // Update the salesData state with the new sale immediately
+    setSalesData((prevSalesData) => [...prevSalesData, newSaleEntry]);
+
+    // Call the addSale function to persist the new sale
     addSale(newSaleEntry)
       .then(() => {
         setModalVisible(false);
         setNewSale({ id: '', name: '', amount: '', date: '', customer: '' });
-        Alert.alert('Success', 'Product added successfully');
+        Alert.alert('Success', 'Sale added successfully');
       })
       .catch((error) => {
-        Alert.alert('Error', 'Failed to add product');
+        Alert.alert('Error', 'Failed to add sale');
         console.error(error);
       });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={{fontSize:25, marginBottom:10}}>Sales : </Text>
+      <Text style={{ fontSize: 25, marginBottom: 10 }}>Sales :</Text>
       <FlatList
         data={salesData}
         keyExtractor={(item) => item.id}
@@ -78,15 +106,16 @@ const SalesScreen = () => {
         <Text style={styles.addProductButtonText}>Add Product</Text>
       </TouchableOpacity>
 
-      {/* Modal to Add New Product */}
+      {/* Modal to Add New Sale */}
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add New Product</Text>
+            <Text style={styles.modalTitle}>Add New Sale</Text>
 
             <TextInput
               style={styles.input}
@@ -114,9 +143,16 @@ const SalesScreen = () => {
               onChangeText={(text) => setNewSale({ ...newSale, customer: text })}
             />
 
-            <View style={styles.modalActions}>
-              <Button title="Cancel" onPress={() => setModalVisible(false)} />
-              <Button title="Add Product" onPress={handleAddProduct} />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancel}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.addLeadButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.addLead} onPress={handleAddProduct}>
+                <Text style={styles.addLeadButtonText}>Add Sales</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -132,13 +168,13 @@ const styles = StyleSheet.create({
     marginTop: 30,
     flex: 1,
     backgroundColor: '#f9f9f9',
-    padding: 15,
+    padding: 20,
   },
   listContainer: {
     paddingBottom: 20,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: 'ivory',
     borderRadius: 10,
     marginBottom: 15,
     padding: 15,
@@ -170,15 +206,25 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   viewDetailsButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: 'green',
     paddingVertical: 10,
-    borderRadius: 5,
-    alignItems: 'center',
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginTop: 10,
   },
   viewDetailsText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
+  },
+  accordionContent: {
+    marginTop: 10,
+    paddingLeft: 10,
+    paddingTop: 5,
+    borderTopWidth: 1,
+    lineHeight: 20,
+    borderTopColor: '#ddd',
   },
   addProductButton: {
     backgroundColor: '#28a745',
@@ -230,9 +276,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 16,
   },
-  modalActions: {
+  modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
+  },
+  cancel: {
+    color: '#fff',
+    backgroundColor: 'gray',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+  },
+  addLeadButtonText: {
+    color: '#fff',
+    paddingHorizontal: 10,
+    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  addLead: {
+    color: '#28a745',
+    backgroundColor: 'green',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
 });
