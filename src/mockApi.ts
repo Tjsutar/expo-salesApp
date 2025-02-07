@@ -83,3 +83,19 @@ export const addLead = async (newLead: { id: string, name: string, status: strin
   await AsyncStorage.setItem('leads', JSON.stringify(leads));  // Store the updated leads data
 };
 
+// mockApi.ts (or mockApi.js)
+export const fetchUserByEmail = async (email: string) => {
+  // Replace with your logic to fetch user data from a server or a mock database
+  const users = [
+    { email: 'john.doe@example.com', name: 'John Doe' },
+    { email: 'jane.smith@example.com', name: 'Jane Smith' },
+  ];
+
+  // Simulate a delay
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const user = users.find((user) => user.email === email);
+      resolve(user); // If a user is found, return it, otherwise return null
+    }, 500);
+  });
+};
